@@ -61,6 +61,7 @@ async def on_ready():
 
 
 @bot.command()
+@commands.has_any_role(*ALLOWED_ROLES)
 async def addpoints(ctx, *args):
     try:
         amount = int(args[-1])
@@ -85,6 +86,7 @@ async def addpoints(ctx, *args):
 
 
 @bot.command()
+@commands.has_any_role(*ALLOWED_ROLES)
 async def removepoints(ctx, *args):
     try:
         amount = int(args[-1])
@@ -99,8 +101,7 @@ async def removepoints(ctx, *args):
                 points[user_id] = 0
             points[user_id] -= amount
 
-        with open("points.json", "w") as f:
-            json.dump(points, f)
+        save_points(points)
 
         names = ', '.join([member.name for member in members])
         await ctx.send(f"✅ Se restaron {amount} puntos a: {names}")

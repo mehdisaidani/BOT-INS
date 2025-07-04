@@ -59,33 +59,56 @@ def is_allowed(ctx):
 async def on_ready():
     print(f"{bot.user} está en línea.")
 
+    @bot.command()
+    async def addpoints(ctx, *args):
+        try:
+            amount = int(args[-1])
+            members = ctx.message.mentions
+            if not members:
+                await ctx.send("❌ Tienes que mencionar al menos a un usuario.")
+                return
+
+            for member in members:
+                user_id = str(member.id)
+                if user_id not in points:
+                    points[user_id] = 0
+                points[user_id] += amount
+
+            with open("points.json", "w") as f:
+                json.dump(points, f)
+
+            names = ', '.join([member.name for member in members])
+            await ctx.send(f"✅ Se añadieron {amount} puntos a: {names}")
+        except (ValueError, IndexError):
+            await ctx.send(
+                "❌ Usa el comando así: `!addpoints @usuario1 @usuario2 cantidad`"
+            )
+
 
 @bot.command()
-async def addpoints(ctx, member: discord.Member, amount: int):
-    if not is_allowed(ctx):
-        return await ctx.send("🚫 No tienes permiso para usar este comando.")
-    user_id = str(member.id)
-    points[user_id] = points.get(user_id, 0) + amount
-    save_points(points)
-    embed = discord.Embed(
-        title="✅ Puntos Añadidos",
-        description=f"{amount} puntos añadidos a {member.mention}",
-        color=0x00ff00)
-    await ctx.send(embed=embed)
+async def removepoints(ctx, *args):
+    try:
+        amount = int(args[-1])
+        members = ctx.message.mentions
+        if not members:
+            await ctx.send("❌ Tienes que mencionar al menos a un usuario.")
+            return
 
+        for member in members:
+            user_id = str(member.id)
+            if user_id not in points:
+                points[user_id] = 0
+            points[user_id] -= amount
 
-@bot.command()
-async def removepoints(ctx, member: discord.Member, amount: int):
-    if not is_allowed(ctx):
-        return await ctx.send("🚫 No tienes permiso para usar este comando.")
-    user_id = str(member.id)
-    points[user_id] = points.get(user_id, 0) - amount
-    save_points(points)
-    embed = discord.Embed(
-        title="⚠️ Puntos Removidos",
-        description=f"{amount} puntos removidos de {member.mention}",
-        color=0xff0000)
-    await ctx.send(embed=embed)
+        with open("points.json", "w") as f:
+            json.dump(points, f)
+
+        names = ', '.join([member.name for member in members])
+        await ctx.send(f"✅ Se restaron {amount} puntos a: {names}")
+    except (ValueError, IndexError):
+        await ctx.send(
+            "❌ Usa el comando así: `!removepoints @usuario1 @usuario2 cantidad`"
+        )
 
 
 @bot.command()

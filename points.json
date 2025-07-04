@@ -1,1 +1,5 @@
-{}
+if os.path.exists("points.json"):
+    with open("points.json", "r") as f:
+        points = json.load(f)
+else:
+    points = {}

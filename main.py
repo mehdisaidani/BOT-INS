@@ -59,30 +59,29 @@ def is_allowed(ctx):
 async def on_ready():
     print(f"{bot.user} está en línea.")
 
-    @bot.command()
-    async def addpoints(ctx, *args):
-        try:
-            amount = int(args[-1])
-            members = ctx.message.mentions
-            if not members:
-                await ctx.send("❌ Tienes que mencionar al menos a un usuario.")
-                return
 
-            for member in members:
-                user_id = str(member.id)
-                if user_id not in points:
-                    points[user_id] = 0
-                points[user_id] += amount
+@bot.command()
+async def addpoints(ctx, *args):
+    try:
+        amount = int(args[-1])
+        members = ctx.message.mentions
+        if not members:
+            await ctx.send("❌ Tienes que mencionar al menos a un usuario.")
+            return
 
-            with open("points.json", "w") as f:
-                json.dump(points, f)
+        for member in members:
+            user_id = str(member.id)
+            if user_id not in points:
+                points[user_id] = 0
+            points[user_id] += amount
 
-            names = ', '.join([member.name for member in members])
-            await ctx.send(f"✅ Se añadieron {amount} puntos a: {names}")
-        except (ValueError, IndexError):
-            await ctx.send(
-                "❌ Usa el comando así: `!addpoints @usuario1 @usuario2 cantidad`"
-            )
+        save_points(points)
+
+        names = ', '.join([member.name for member in members])
+        await ctx.send(f"✅ Se añadieron {amount} puntos a: {names}")
+    except (ValueError, IndexError):
+        await ctx.send(
+            "❌ Usa el comando así: `!addpoints @usuario1 @usuario2 cantidad`")
 
 
 @bot.command()

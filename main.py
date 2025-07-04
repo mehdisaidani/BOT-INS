@@ -129,11 +129,20 @@ async def ranking(ctx):
     for i, (user_id, score) in enumerate(sorted_points[:10], 1):
         member = ctx.guild.get_member(int(user_id))
         name = member.display_name if member else f"User {user_id}"
-        description += f"**{i}. {name}** — {score} puntos\\n"
+        description += f"**{i}. {name}** — {score} puntos\n"
     embed = discord.Embed(title="🏆 Ranking de Puntos",
                           description=description,
                           color=0xf1c40f)
     await ctx.send(embed=embed)
+
+
+@bot.command()
+@commands.has_any_role(*ALLOWED_ROLES)
+async def resetpoints(ctx):
+    global points
+    points = {}
+    save_points(points)
+    await ctx.send("🔄 Todos los puntos han sido reseteados.")
 
 
 bot.run(os.environ["TOKEN"])
